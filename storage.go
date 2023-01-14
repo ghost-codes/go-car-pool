@@ -1,6 +1,12 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+	"os"
+
+	_ "github.com/lib/pq"
+)
 
 type Postgres struct {
 	db *sql.DB
@@ -11,7 +17,9 @@ type Storage struct {
 }
 
 func NewStorate() (*Postgres, error) {
-	connStr := "user=postgres dbname=postgres password=password sslmode=disable"
+	password := os.Getenv("password")
+	connStr := fmt.Sprintf("user=postgres dbname=go_car_pool password=%s sslmode=disable", password)
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
@@ -21,4 +29,8 @@ func NewStorate() (*Postgres, error) {
 		return nil, err
 	}
 	return &Postgres{db}, nil
+}
+
+func (pg *Postgres) intStorage() error {
+	return pg.createUserTable()
 }
