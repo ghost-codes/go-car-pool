@@ -19,7 +19,6 @@ type Storage struct {
 func NewStorate() (*Postgres, error) {
 	password := os.Getenv("password")
 	connStr := fmt.Sprintf("user=postgres dbname=go_car_pool password=%s sslmode=disable", password)
-
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err

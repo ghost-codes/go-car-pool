@@ -79,6 +79,13 @@ func (api *ApiServer) userLogin(w http.ResponseWriter, r *http.Request) ErrorI {
 			Err:  "Method not allowed",
 		}
 	}
+
+	err := SendMail(SendMailData{
+		To:      "compounddork@gmail.com",
+		Subject: "Test",
+		Body:    "Testing my smtp server on go",
+	})
+
 	loginData := new(LoginData)
 
 	if err := json.NewDecoder(r.Body).Decode(loginData); err != nil {

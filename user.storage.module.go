@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 type UserType int
@@ -12,15 +13,16 @@ const (
 )
 
 type UserModel struct {
-	ID             int      `json:"id"`
-	FirstName      string   `json:"firstName"`
-	LastName       string   `json:"lastName"`
-	UserName       string   `json:"userName"`
-	Email          string   `json:"email"`
-	Phone          *string  `json:"phone"`
-	Country        string   `json:"country"`
-	HashedPassword string   `json:"-"`
-	Type           UserType `json:"-"`
+	ID             int        `json:"id"`
+	FirstName      string     `json:"firstName"`
+	LastName       string     `json:"lastName"`
+	UserName       string     `json:"userName"`
+	Email          string     `json:"email"`
+	Phone          *string    `json:"phone"`
+	Country        string     `json:"country"`
+	HashedPassword string     `json:"-"`
+	Type           UserType   `json:"-"`
+	ConfirmedAt    *time.Time `json:"confirmedAt"`
 }
 
 type UserStorageModule interface {
@@ -33,16 +35,17 @@ type UserStorageModule interface {
 }
 
 func (pg *Postgres) createUserTable() error {
-	query := `CREATE TABLE IF NOT EXISTS passanger(
-		id serial primary key,
-	   	firstName varchar(50),
-	   	lastName varchar(50),
-	   	userName varchar(100),
-	   	email varchar(255),
-	   	phone varchar(15),
-	   	country varchar(50),
-	   	hashedPassword varchar(255),
-	   	type serial
+	query := `CREATE TABLE IF NOT EXISTS useraccount(
+		id SERIAL PRIMARY KEY,
+	   	firstName VARCHAR(50) NOT NULL,
+	   	lastName VARCHAR(50) NOT NULL,
+	   	userName VARCHAR(100) NOT NULL UNIQUE,
+	   	email VARCHAR(255) NOT NULL UNIQUE,
+	   	phone VARCHAR(15),
+	   	country VARCHAR(50) NOT NULL,
+	   	hashedPassword VARCHAR(255) NOT NULL,
+	   	type SERIAL NOT NULL,
+		confirmedAt TIMESTAMP
 ) `
 
 	_, err := pg.db.Exec(query)
@@ -51,7 +54,7 @@ func (pg *Postgres) createUserTable() error {
 }
 
 func (pg Postgres) CreateUser(data *SignUpData) (*UserModel, error) {
-	query := `INSERT INTO passanger (
+	query := `INSERT INTO useraccount (
 	   	firstName ,
 	   	lastName ,
 	   	userName ,
@@ -85,7 +88,7 @@ func (pg Postgres) GetUserByID(ID int) error {
 }
 
 func (pg Postgres) GetUserByIdentifier(Identifier string) (*UserModel, error) {
-	query := `SELECT * FROM passanger WHERE email=$1 OR userName=$1`
+	query := `SELECT * FROM useraccount WHERE email=$1 OR userName=$1`
 
 	user := new(UserModel)
 
